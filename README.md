@@ -11,52 +11,79 @@ The Dewiz Token Factory creates tokens compliant with industry-standard Ethereum
 ### Stack Overview
 
 **Smart Contract Framework:**
-- **Solidity**: Primary smart contract language (^0.8.13+)
+- **Solidity**: Primary smart contract language (^0.8.24)
 - **Foundry/Forge**: Modern development framework for building, testing, and deploying smart contracts
+- **OpenZeppelin Contracts v5.5**: Industry-standard secure contract implementations
 - **forge-std**: Standard library providing testing utilities and helper functions
 
 **Development Environment:**
 - **Forge**: Fast, portable, and modular toolkit for Ethereum application development
 - **Cast**: Swiss army knife for interacting with EVM smart contracts
 - **Anvil**: Local Ethereum node for development and testing
+- **Via IR**: Intermediate representation compilation enabled for complex contracts
 
 ### Architecture Patterns
 
-**Factory Pattern Implementation:**
-The project utilizes the Factory design pattern, a creational pattern that provides an interface for creating token contracts without specifying their concrete classes. This approach offers:
-- **Abstraction**: Clients interact with tokens through standardized interfaces (ERC-20, ERC-721, ERC-1155)
+**Abstract Factory Pattern Implementation:**
+
+The project implements the Abstract Factory design pattern, providing a unified interface for creating families of related token contracts:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   TokenFactoryRegistry                       │
+│           (Abstract Factory Coordinator/Client)              │
+│  ┌─────────────┬──────────────┬──────────────┐              │
+│  │ ERC20Factory│ ERC721Factory│ERC1155Factory│              │
+│  └─────────────┴──────────────┴──────────────┘              │
+└─────────────────────────────────────────────────────────────┘
+         │                │                │
+         ▼                ▼                ▼
+┌─────────────┐  ┌──────────────┐  ┌───────────────┐
+│ DewizERC20  │  │ DewizERC721  │  │ DewizERC1155  │
+│  (Product)  │  │  (Product)   │  │  (Product)    │
+└─────────────┘  └──────────────┘  └───────────────┘
+```
+
+**Key Benefits:**
+- **Abstraction**: Clients interact with tokens through standardized interfaces (ITokenFactory, IERC20Factory, etc.)
 - **Extensibility**: New token types can be added without modifying existing code
 - **Centralized Management**: Token creation logic is consolidated in factory contracts
+- **Token Tracking**: All created tokens are tracked per factory and per creator address
 - **Cost Efficiency**: Shared implementation logic reduces deployment costs
 
-**Proxy Pattern (Upgradeable Contracts):**
-To support regulatory updates and feature enhancements post-deployment:
-- **Transparent Proxy Pattern**: Separates logic and storage, enabling contract upgrades
-- **Access Control**: Role-based permissions for administrative functions
-- **State Preservation**: Contract upgrades maintain token holder balances and state
+**Access Control Pattern:**
+Role-based permissions using OpenZeppelin's AccessControl:
+- `DEFAULT_ADMIN_ROLE`: Full administrative access
+- `MINTER_ROLE`: Permission to mint new tokens
+- `PAUSER_ROLE`: Permission to pause/unpause transfers
+- `URI_SETTER_ROLE`: Permission to update metadata URIs (ERC-1155)
 
 **Compliance Layer Architecture:**
 - **Modular Compliance Rules**: Pluggable compliance modules for different jurisdictions
 - **Whitelist/Blacklist Management**: Address-based restrictions for OFAC and other sanctions
 - **Transfer Restrictions**: Configurable rules for KYC/AML compliance
 - **Regulatory Hooks**: Pre and post-transfer validation hooks for custom compliance logic
+- **Pausable Functionality**: Emergency pause mechanism for incident response
 
 ### Token Standards Support
 
-**ERC-20 (Fungible Tokens):**
+**DewizERC20 (Fungible Tokens):**
 - Stablecoins for payments and remittances
 - Utility tokens for platform economics
 - Tokenized securities and debentures
+- **Features**: Configurable decimals, optional minting, burning, and pausability
 
-**ERC-721 (Non-Fungible Tokens):**
+**DewizERC721 (Non-Fungible Tokens):**
 - Unique asset tokenization (real estate, art, collectibles)
 - Digital certificates and credentials
 - Fractional ownership representations
+- **Features**: ERC-2981 royalty support, URI storage per token, auto-incrementing token IDs
 
-**ERC-1155 (Multi-Token Standard):**
+**DewizERC1155 (Multi-Token Standard):**
 - Batch operations for efficiency
 - Mixed fungible and non-fungible token management
 - Reduced gas costs for multi-asset platforms
+- **Features**: Supply tracking, per-token URIs, ERC-2981 royalties, token type creation
 
 ### Security Considerations
 
@@ -117,13 +144,42 @@ To support regulatory updates and feature enhancements post-deployment:
 ## Project Structure
 
 ```
-├── src/                    # Smart contract source files
-├── test/                   # Test files using Forge testing framework
-├── script/                 # Deployment and interaction scripts
-├── lib/                    # External dependencies (forge-std)
-├── foundry.toml           # Foundry configuration
-└── remappings.txt         # Import remapping for dependencies
+├── src/
+│   ├── TokenFactoryRegistry.sol    # Central registry and factory coordinator
+│   ├── interfaces/
+│   │   ├── ITokenFactory.sol       # Base factory interface
+│   │   ├── IERC20Factory.sol       # ERC-20 factory interface
+│   │   ├── IERC721Factory.sol      # ERC-721 factory interface
+│   │   └── IERC1155Factory.sol     # ERC-1155 factory interface
+│   ├── factories/
+│   │   ├── ERC20Factory.sol        # Concrete ERC-20 factory
+│   │   ├── ERC721Factory.sol       # Concrete ERC-721 factory
+│   │   └── ERC1155Factory.sol      # Concrete ERC-1155 factory
+│   └── tokens/
+│       ├── DewizERC20.sol          # Feature-rich ERC-20 implementation
+│       ├── DewizERC721.sol         # Feature-rich ERC-721 implementation
+│       └── DewizERC1155.sol        # Feature-rich ERC-1155 implementation
+├── test/                            # Test files using Forge testing framework
+├── script/
+│   └── DeployTokenFactory.s.sol    # Deployment scripts
+├── lib/
+│   ├── forge-std/                  # Foundry standard library
+│   └── openzeppelin-contracts/     # OpenZeppelin v5.5
+├── foundry.toml                    # Foundry configuration
+└── remappings.txt                  # Import remapping for dependencies
 ```
+
+### Contract Descriptions
+
+| Contract | Description |
+|----------|-------------|
+| `TokenFactoryRegistry` | Central entry point coordinating all factories. Provides unified interface for token creation. |
+| `ERC20Factory` | Creates DewizERC20 tokens with configurable features (mint/burn/pause). |
+| `ERC721Factory` | Creates DewizERC721 NFTs with royalties and metadata support. |
+| `ERC1155Factory` | Creates DewizERC1155 multi-tokens with supply tracking. |
+| `DewizERC20` | Full-featured ERC-20 with AccessControl, optional minting, burning, and pausability. |
+| `DewizERC721` | ERC-721 with royalties (ERC-2981), URI storage, and role-based access. |
+| `DewizERC1155` | Multi-token with supply tracking, royalties, and batch operations. |
 
 ## Getting Started
 
@@ -183,13 +239,48 @@ forge snapshot
 ```bash
 # Deploy to local Anvil network
 anvil # In separate terminal
-forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast
+forge script script/DeployTokenFactory.s.sol:DeployTokenFactoryLocal --rpc-url http://localhost:8545 --broadcast
 
-# Deploy to testnet
-forge script script/Deploy.s.sol --rpc-url $RPC_URL --broadcast --verify
+# Deploy to testnet/mainnet (requires PRIVATE_KEY env variable)
+export PRIVATE_KEY=<your-private-key>
+forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $RPC_URL --broadcast --verify
 
 # Verify contract on Etherscan
 forge verify-contract <CONTRACT_ADDRESS> <CONTRACT_NAME> --chain <CHAIN_ID>
+```
+
+### Deployment Order
+
+The deployment script automatically:
+1. Deploys `TokenFactoryRegistry` (central coordinator)
+2. Deploys `ERC20Factory`, `ERC721Factory`, `ERC1155Factory`
+3. Registers all factories with the registry
+
+### Creating Tokens
+
+After deployment, create tokens via the registry:
+
+```solidity
+// Create a simple ERC-20 token
+address token = registry.createSimpleERC20Token(
+    "My Token",
+    "MTK",
+    1000000 * 10**18  // Initial supply
+);
+
+// Create an ERC-721 NFT collection
+address nft = registry.createSimpleERC721Token(
+    "My NFT",
+    "MNFT",
+    "https://api.example.com/metadata/"
+);
+
+// Create an ERC-1155 multi-token
+address multiToken = registry.createSimpleERC1155Token(
+    "My Collection",
+    "MCOL",
+    "https://api.example.com/token/{id}.json"
+);
 ```
 
 ## Testing Strategy

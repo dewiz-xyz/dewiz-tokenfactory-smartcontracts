@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project serves as the abstract token factory for all tokenization initiatives aimed at Dewiz clients. Dewiz provides the leading tokenization platform in the Web3 ecosystem, empowering financial institutions to create stablecoins for payments, international remittances, credit facilities, and international trade. Additionally, the platform enables tokenization of Real World Assets (RWA), government bonds, corporate debentures, and implements solvers for currency and token swaps.
+Dewiz's mission is to help “de-wizardrying” DeFi, making it more accessible to the more Financial Instutions and People. Dewiz Token Factory provides the leading tokenization platform in the Web3 ecosystem, empowering financial institutions to create stablecoins for payments, international remittances, credit facilities, and international trade. Additionally, the platform enables tokenization of Real World Assets (RWA), government bonds, corporate debentures, and implements solvers for currency and token swaps. This project serves as the abstract token factory for all tokenization initiatives aimed at Dewiz clients.
 
 The Dewiz Token Factory creates tokens compliant with industry-standard Ethereum token specifications including ERC-20, ERC-721, and ERC-1155. Beyond basic token standards, Dewiz incorporates regulatory compliance rules directly into smart contracts to ensure adherence to requirements from major regulatory agencies worldwide, including OFAC, SEC, European Central Bank (ECB), and others.
 

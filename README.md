@@ -6,6 +6,8 @@ Dewiz's mission is to help “de-wizardrying” DeFi, making it more accessible 
 
 The Dewiz Token Factory creates tokens compliant with industry-standard Ethereum token specifications including ERC-20, ERC-721, and ERC-1155. Beyond basic token standards, Dewiz incorporates regulatory compliance rules directly into smart contracts to ensure adherence to requirements from major regulatory agencies worldwide, including OFAC, SEC, European Central Bank (ECB), and others.
 
+In a market where smart contract hacks are common, our MOAT is the reduction of legal and technical risk for enterprise clients based on our years of experience in Corporate, and MakerDAO/Sky ecosystem.
+
 ## Tech Architecture
 
 ### Stack Overview

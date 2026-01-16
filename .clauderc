@@ -1,0 +1,159 @@
+# Claude Code Configuration for Dewiz Token Factory
+
+# Project-specific instructions
+project_instructions: |
+  This is an ENTERPRISE-GRADE Solidity smart contract project for a tokenization platform serving financial institutions.
+
+  ## Mission
+  Dewiz helps "de-wizardrying" DeFi for Financial Institutions and People, providing:
+  - Stablecoins for payments and international remittances
+  - Real World Asset (RWA) tokenization
+  - Government bonds and corporate debentures
+  - Regulatory-compliant tokens (OFAC, SEC, ECB)
+
+  ## Tech Stack
+  - Solidity: ^0.8.24 (ALWAYS use this version)
+  - Foundry/Forge: Latest (dev, test, deploy)
+  - OpenZeppelin: v5.5 (ALWAYS use OZ for standard patterns)
+  - Via IR enabled, optimizer_runs = 200
+
+  ## Architecture: Abstract Factory Pattern
+  ```
+  TokenFactoryRegistry (Coordinator)
+    ├── ERC20Factory → DewizERC20
+    ├── ERC721Factory → DewizERC721
+    └── ERC1155Factory → DewizERC1155
+  ```
+
+  ## Critical Code Standards (ALWAYS FOLLOW)
+
+  ### File Header (REQUIRED)
+  ```solidity
+  // SPDX-License-Identifier: MIT
+  pragma solidity ^0.8.24;
+  ```
+
+  ### Naming Conventions (PROJECT-SPECIFIC)
+  - Contracts: PascalCase (TokenFactoryRegistry, ERC20Factory)
+  - Interfaces: I prefix (ITokenFactory, IERC20Factory)
+  - Functions: camelCase (createToken, getTokenCount)
+  - Constants: SCREAMING_SNAKE (MINTER_ROLE, DEFAULT_DECIMALS)
+  - Private/Internal: _ prefix (_tokens, _isFactoryToken)
+  - Immutables: no prefix (factory, mintable, burnable)
+  - Events: PascalCase (TokenCreated, FactoryRegistered)
+  - Custom Errors: PascalCase (TokenCreationFailed, ZeroAddressFactory)
+
+  ### Custom Errors (ALWAYS use, NEVER require strings)
+  ```solidity
+  // ❌ NEVER: require(factory != address(0), "Zero address");
+  // ✅ ALWAYS:
+  error ZeroAddressFactory();
+  if (factory == address(0)) revert ZeroAddressFactory();
+  ```
+
+  ### Import Style (Named imports with curly braces)
+  ```solidity
+  // 1. OpenZeppelin (alphabetical)
+  import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+  import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+  // 2. Project interfaces
+  import {IERC20Factory} from "../interfaces/IERC20Factory.sol";
+  // 3. Project contracts
+  import {DewizERC20} from "../tokens/DewizERC20.sol";
+  ```
+
+  ### Function Ordering (Solidity Style Guide)
+  1. State variables (constants, immutables, storage)
+  2. Events
+  3. Errors
+  4. Modifiers
+  5. Constructor
+  6. External functions
+  7. Public functions
+  8. Internal functions
+  9. Private functions
+  10. View/Pure (at end within each visibility)
+
+  ### Access Control Roles (Standard)
+  ```solidity
+  bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+  bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+  bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
+  // DEFAULT_ADMIN_ROLE from AccessControl
+  ```
+
+  ### Feature Flags Pattern (for tokens)
+  ```solidity
+  bool public immutable mintable;
+  bool public immutable burnable;
+  bool public immutable pausable;
+  ```
+
+  ## NatSpec Documentation (REQUIRED for public/external)
+  ```solidity
+  /**
+   * @notice Creates a new token with specified parameters
+   * @param name The name of the token
+   * @return tokenAddress The address of the newly created token
+   */
+  ```
+
+  ## Testing Standards
+  - Test naming: test_FunctionName_Description (success)
+  - Test naming: test_RevertWhen_Condition (failure)
+  - Test naming: testFuzz_FunctionName (fuzz tests)
+  - Use makeAddr() for addresses
+  - Use vm.prank(), vm.expectRevert(), vm.expectEmit()
+  - Arrange-Act-Assert pattern
+
+  ## Security Checklist (ALWAYS verify)
+  - [ ] Access control on all privileged functions
+  - [ ] Custom errors (not require strings)
+  - [ ] Events for state changes
+  - [ ] Zero address checks
+  - [ ] Input validation
+  - [ ] Checks-Effects-Interactions pattern
+  - [ ] NatSpec complete
+
+  ## Commands
+  - Build: forge build
+  - Test: forge test -vvv
+  - Test specific: forge test --match-test testName
+  - Coverage: forge coverage
+  - Gas report: forge test --gas-report
+  - Format: forge fmt
+  - Slither: slither . --exclude-dependencies
+
+  ## Commit Format
+  - feat: New features
+  - fix: Bug fixes
+  - docs: Documentation
+  - test: Tests
+  - refactor: Refactoring
+  - chore: Maintenance
+
+  ## Key Patterns
+  1. Abstract Factory: Registry delegates to specific factories
+  2. Token Tracking: _tokens[], _isFactoryToken, _creatorTokens
+  3. Feature Flags: Immutable booleans set in constructor
+  4. Compliance Hooks: Optional external validation (intentional design)
+
+  IMPORTANT: This is production financial infrastructure. Security and code quality are paramount.
+  Follow the GitHub Copilot instructions at .github/copilot-instructions.md for complete details.
+
+# Files and directories to exclude from context
+exclude:
+  - "out/**"
+  - "cache/**"
+  - "node_modules/**"
+  - "lib/**"
+  - ".git/**"
+  - "broadcast/**"
+  - "*.log"
+  - ".DS_Store"
+
+# Auto-run tests after code changes (optional)
+# auto_test: true
+
+# Preferred model (optional - defaults to sonnet)
+# model: sonnet

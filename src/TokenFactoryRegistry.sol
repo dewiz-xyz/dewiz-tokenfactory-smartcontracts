@@ -290,7 +290,8 @@ contract TokenFactoryRegistry is Ownable {
      */
     function _addToRegisteredFactories(address factory) internal {
         // Check if already registered
-        for (uint256 i = 0; i < _registeredFactories.length; i++) {
+        uint256 length = _registeredFactories.length;
+        for (uint256 i = 0; i < length; i++) {
             if (_registeredFactories[i] == factory) {
                 return;
             }

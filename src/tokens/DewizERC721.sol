@@ -241,13 +241,22 @@ contract DewizERC721 is
         super.approve(to, tokenId);
     }
 
+    /**
+     * @dev Hook that is called before any token transfer.
+     * @param to The address tokens are transferred to
+     * @param tokenId The token ID being transferred
+     * @param auth The authorized address for the transfer
+     * @return The previous owner of the token
+     * @dev External call to complianceHook is made after state changes but before return.
+     *      This is intentional to validate transfers. Ensure compliance hooks are gas-efficient.
+     */
     function _update(
         address to,
         uint256 tokenId,
         address auth
     ) internal virtual override(ERC721, ERC721Pausable) returns (address) {
         address previousOwner = super._update(to, tokenId, auth);
-        
+
         if (address(complianceHook) != address(0)) {
             if (previousOwner == address(0)) {
                  complianceHook.onMint(msg.sender, to, tokenId, 1);
@@ -257,7 +266,7 @@ contract DewizERC721 is
                  complianceHook.onTransfer(msg.sender, previousOwner, to, tokenId, 1);
             }
         }
-        
+
         return previousOwner;
     }
 }

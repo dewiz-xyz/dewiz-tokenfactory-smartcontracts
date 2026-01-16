@@ -297,6 +297,9 @@ contract DewizERC1155 is
      * @param to The address tokens are transferred to
      * @param ids The token IDs transferred
      * @param values The amounts transferred
+     * @dev External calls to complianceHook are made inside a loop for batch operations.
+     *      This is intentional to validate each token transfer individually.
+     *      Gas costs scale with batch size. Ensure compliance hooks are gas-efficient.
      */
     function _update(
         address from,
@@ -306,7 +309,8 @@ contract DewizERC1155 is
     ) internal virtual override(ERC1155, ERC1155Pausable, ERC1155Supply) {
         if (address(complianceHook) != address(0)) {
             // Check each token transfer in the batch
-            for (uint256 i = 0; i < ids.length; i++) {
+            uint256 length = ids.length;
+            for (uint256 i = 0; i < length; i++) {
                 if (from == address(0)) {
                     complianceHook.onMint(msg.sender, to, ids[i], values[i]);
                 } else if (to == address(0)) {

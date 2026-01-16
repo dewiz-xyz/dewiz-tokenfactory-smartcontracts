@@ -80,17 +80,17 @@ contract TemplateComplianceHook is IComplianceHook, Ownable {
     /// @inheritdoc IComplianceHook
     function onApproval(
         address operator,
-        address owner,
+        address tokenOwner,
         address spender,
         uint256 id,
         uint256 amount
     ) external override {
         // Template: Add checks if approvals are allowed to specific spenders
-        
+
         emit ComplianceValidation(
             this.onApproval.selector,
             operator,
-            owner,
+            tokenOwner,
             spender,
             amount
         );

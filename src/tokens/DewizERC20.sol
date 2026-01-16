@@ -166,6 +166,8 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
      * @param from The address tokens are transferred from
      * @param to The address tokens are transferred to
      * @param value The amount of tokens transferred
+     * @dev External call to complianceHook is made before state changes.
+     *      This is intentional to validate transfers. Ensure compliance hooks are gas-efficient.
      */
     function _update(address from, address to, uint256 value) internal virtual override(ERC20, ERC20Pausable) {
         if (address(complianceHook) != address(0)) {

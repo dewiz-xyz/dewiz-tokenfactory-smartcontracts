@@ -1,0 +1,38 @@
+# Claude Code ignore file - files and directories to exclude from context
+
+# Build outputs
+out/
+cache/
+broadcast/
+
+# Dependencies
+node_modules/
+lib/
+
+# Git
+.git/
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+coverage/
+lcov.info
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

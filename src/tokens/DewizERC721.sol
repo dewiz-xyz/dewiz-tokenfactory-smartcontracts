@@ -2,11 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import {ERC721Pausable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {ERC721Royalty} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IComplianceHook} from "../interfaces/IComplianceHook.sol";
 
 /**
  * @title DewizERC721
@@ -47,6 +49,12 @@ contract DewizERC721 is
     /// @notice The factory that created this token
     address public immutable factory;
 
+    /// @notice The compliance hook contract
+    IComplianceHook public complianceHook;
+
+    /// @notice Emitted when the compliance hook is updated
+    event ComplianceHookUpdated(address oldHook, address newHook);
+
     /// @notice Error thrown when trying to mint on a non-mintable token
     error MintingDisabled();
 
@@ -68,6 +76,7 @@ contract DewizERC721 is
      * @param hasRoyalty_ Whether royalties are enabled
      * @param royaltyReceiver_ The address to receive royalties
      * @param royaltyFeeNumerator_ The royalty fee in basis points
+     * @param complianceHook_ The compliance hook address (optional)
      */
     constructor(
         string memory name_,
@@ -79,13 +88,15 @@ contract DewizERC721 is
         bool isPausable_,
         bool hasRoyalty_,
         address royaltyReceiver_,
-        uint96 royaltyFeeNumerator_
+        uint96 royaltyFeeNumerator_,
+        address complianceHook_
     ) ERC721(name_, symbol_) {
         _baseTokenURI = baseURI_;
         mintable = isMintable_;
         burnable = isBurnable_;
         pausable = isPausable_;
         factory = msg.sender;
+        complianceHook = IComplianceHook(complianceHook_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin_);
         
@@ -108,6 +119,15 @@ contract DewizERC721 is
      */
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
+    }
+
+    /**
+     * @notice Updates the compliance hook contract
+     * @param newHook The new compliance hook address
+     */
+    function setComplianceHook(address newHook) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        emit ComplianceHookUpdated(address(complianceHook), newHook);
+        complianceHook = IComplianceHook(newHook);
     }
 
     /**
@@ -206,11 +226,38 @@ contract DewizERC721 is
         return super.supportsInterface(interfaceId);
     }
 
+    function setApprovalForAll(address operator, bool approved) public virtual override(ERC721, IERC721) {
+        if (address(complianceHook) != address(0) && approved) {
+            // value 0 and id 0 used to signify "all"
+            complianceHook.onApproval(msg.sender, msg.sender, operator, 0, 0);
+        }
+        super.setApprovalForAll(operator, approved);
+    }
+
+    function approve(address to, uint256 tokenId) public virtual override(ERC721, IERC721) {
+        if (address(complianceHook) != address(0) && to != address(0)) {
+            complianceHook.onApproval(msg.sender, msg.sender, to, tokenId, 1);
+        }
+        super.approve(to, tokenId);
+    }
+
     function _update(
         address to,
         uint256 tokenId,
         address auth
     ) internal virtual override(ERC721, ERC721Pausable) returns (address) {
-        return super._update(to, tokenId, auth);
+        address previousOwner = super._update(to, tokenId, auth);
+        
+        if (address(complianceHook) != address(0)) {
+            if (previousOwner == address(0)) {
+                 complianceHook.onMint(msg.sender, to, tokenId, 1);
+            } else if (to == address(0)) {
+                 complianceHook.onBurn(msg.sender, previousOwner, tokenId, 1);
+            } else {
+                 complianceHook.onTransfer(msg.sender, previousOwner, to, tokenId, 1);
+            }
+        }
+        
+        return previousOwner;
     }
 }

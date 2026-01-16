@@ -67,7 +67,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: true
+            isPausable: true,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -93,7 +94,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.expectEmit(false, true, false, true);
@@ -112,7 +114,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         assertEq(factory.getTokenCount(), 0);
@@ -132,7 +135,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -150,7 +154,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -170,7 +175,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -189,7 +195,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: false,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -310,7 +317,8 @@ contract ERC20FactoryTest is Test {
             user,
             true,
             true,
-            false
+            false,
+            address(0)
         );
 
         assertFalse(factory.isTokenFromFactory(address(externalToken)));
@@ -367,7 +375,8 @@ contract ERC20FactoryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);

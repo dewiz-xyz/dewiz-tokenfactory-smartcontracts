@@ -55,7 +55,8 @@ contract ERC721Factory is IERC721Factory, Ownable {
             params.isPausable,
             params.hasRoyalty,
             params.royaltyReceiver,
-            params.royaltyFeeNumerator
+            params.royaltyFeeNumerator,
+            params.complianceHook
         );
 
         tokenAddress = address(token);
@@ -84,7 +85,8 @@ contract ERC721Factory is IERC721Factory, Ownable {
             false,    // not pausable
             false,    // no royalty
             address(0),
-            0
+            0,
+            address(0) // no compliance hook
         );
 
         tokenAddress = address(token);

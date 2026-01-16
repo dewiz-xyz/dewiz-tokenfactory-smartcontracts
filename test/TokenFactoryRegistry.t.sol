@@ -171,7 +171,8 @@ contract TokenFactoryRegistryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -210,7 +211,8 @@ contract TokenFactoryRegistryTest is Test {
             initialHolder: user,
             isMintable: true,
             isBurnable: true,
-            isPausable: false
+            isPausable: false,
+            complianceHook: address(0)
         });
 
         vm.expectRevert(
@@ -251,7 +253,8 @@ contract TokenFactoryRegistryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -286,7 +289,8 @@ contract TokenFactoryRegistryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.expectRevert(
@@ -315,7 +319,8 @@ contract TokenFactoryRegistryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -350,7 +355,8 @@ contract TokenFactoryRegistryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.expectRevert(
@@ -443,7 +449,8 @@ contract TokenFactoryRegistryTest is Test {
             user,
             true,
             true,
-            false
+            false,
+            address(0)
         );
 
         assertFalse(registry.isTokenFromAnyFactory(address(externalToken)));

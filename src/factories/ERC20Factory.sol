@@ -57,7 +57,8 @@ contract ERC20Factory is IERC20Factory, Ownable {
             msg.sender,
             params.isMintable,
             params.isBurnable,
-            params.isPausable
+            params.isPausable,
+            params.complianceHook
         );
 
         tokenAddress = address(token);
@@ -85,7 +86,8 @@ contract ERC20Factory is IERC20Factory, Ownable {
             msg.sender,
             true,  // mintable
             true,  // burnable
-            false  // not pausable
+            false, // not pausable
+            address(0) // no compliance hook
         );
 
         tokenAddress = address(token);

@@ -5,6 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {ERC20Pausable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IComplianceHook} from "../interfaces/IComplianceHook.sol";
 
 /**
  * @title DewizERC20
@@ -35,6 +36,12 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
     /// @notice The factory that created this token
     address public immutable factory;
 
+    /// @notice The compliance hook contract
+    IComplianceHook public complianceHook;
+
+    /// @notice Emitted when the compliance hook is updated
+    event ComplianceHookUpdated(address oldHook, address newHook);
+
     /// @notice Error thrown when trying to mint on a non-mintable token
     error MintingDisabled();
 
@@ -55,6 +62,7 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
      * @param isMintable_ Whether minting is enabled
      * @param isBurnable_ Whether burning is enabled
      * @param isPausable_ Whether pausing is enabled
+     * @param complianceHook_ The compliance hook address (optional)
      */
     constructor(
         string memory name_,
@@ -65,13 +73,15 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
         address admin_,
         bool isMintable_,
         bool isBurnable_,
-        bool isPausable_
+        bool isPausable_,
+        address complianceHook_
     ) ERC20(name_, symbol_) {
         _decimals = decimals_;
         mintable = isMintable_;
         burnable = isBurnable_;
         pausable = isPausable_;
         factory = msg.sender;
+        complianceHook = IComplianceHook(complianceHook_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin_);
         
@@ -94,6 +104,15 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
      */
     function decimals() public view virtual override returns (uint8) {
         return _decimals;
+    }
+
+    /**
+     * @notice Updates the compliance hook contract
+     * @param newHook The new compliance hook address
+     */
+    function setComplianceHook(address newHook) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        emit ComplianceHookUpdated(address(complianceHook), newHook);
+        complianceHook = IComplianceHook(newHook);
     }
 
     /**
@@ -142,13 +161,32 @@ contract DewizERC20 is ERC20, ERC20Burnable, ERC20Pausable, AccessControl {
     }
 
     /**
-     * @dev Hook that is called before any transfer of tokens
+     * @notice Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     * @param from The address tokens are transferred from
+     * @param to The address tokens are transferred to
+     * @param value The amount of tokens transferred
      */
-    function _update(
-        address from,
-        address to,
-        uint256 value
-    ) internal virtual override(ERC20, ERC20Pausable) {
+    function _update(address from, address to, uint256 value) internal virtual override(ERC20, ERC20Pausable) {
+        if (address(complianceHook) != address(0)) {
+            if (from == address(0)) {
+                complianceHook.onMint(msg.sender, to, 0, value);
+            } else if (to == address(0)) {
+                complianceHook.onBurn(msg.sender, from, 0, value);
+            } else {
+                complianceHook.onTransfer(msg.sender, from, to, 0, value);
+            }
+        }
         super._update(from, to, value);
+    }
+
+    /**
+     * @notice See {IERC20-approve}.
+     */
+    function approve(address spender, uint256 value) public virtual override returns (bool) {
+        if (address(complianceHook) != address(0)) {
+            complianceHook.onApproval(msg.sender, msg.sender, spender, 0, value);
+        }
+        return super.approve(spender, value);
     }
 }

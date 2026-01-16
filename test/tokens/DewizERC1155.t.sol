@@ -37,6 +37,7 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
     event URI(string value, uint256 indexed id);
     event Paused(address account);
     event Unpaused(address account);
+    event ComplianceHookUpdated(address oldHook, address newHook);
 
     function setUp() public {
         admin = makeAddr("admin");
@@ -56,7 +57,8 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
             true,  // pausable
             false, // no royalty
             address(0),
-            0
+            0,
+            address(0)
         );
 
         // Deploy non-mintable token
@@ -71,7 +73,8 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
             false, // not pausable
             false,
             address(0),
-            0
+            0,
+            address(0)
         );
 
         // Deploy token with royalties
@@ -86,7 +89,8 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
             false,
             true, // has royalty
             royaltyReceiver,
-            ROYALTY_FEE
+            ROYALTY_FEE,
+            address(0)
         );
     }
 
@@ -153,6 +157,42 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
 
     function test_Constructor_InitializesNextTokenTypeIdToZero() public view {
         assertEq(token.nextTokenTypeId(), 0);
+    }
+
+    // ============ Compliance Hook Tests ============
+
+    function test_SetComplianceHook_Success() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
+        
+        assertEq(address(token.complianceHook()), newHook);
+    }
+
+    function test_RevertWhen_SetComplianceHookWithoutAdmin() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                user,
+                DEFAULT_ADMIN_ROLE
+            )
+        );
+        
+        vm.prank(user);
+        token.setComplianceHook(newHook);
+    }
+
+    function test_SetComplianceHook_EmitsEvent() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectEmit(false, false, false, true);
+        emit ComplianceHookUpdated(address(0), newHook);
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
     }
 
     // ============ CreateTokenType Tests ============
@@ -290,7 +330,8 @@ contract DewizERC1155Test is Test, IERC1155Receiver {
             false,
             false,
             address(0),
-            0
+            0,
+            address(0)
         );
 
         vm.prank(admin);

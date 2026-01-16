@@ -2,11 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IComplianceHook} from "../interfaces/IComplianceHook.sol";
 
 /**
  * @title DewizERC1155
@@ -53,6 +55,12 @@ contract DewizERC1155 is
     /// @notice The factory that created this token
     address public immutable factory;
 
+    /// @notice The compliance hook contract
+    IComplianceHook public complianceHook;
+
+    /// @notice Emitted when the compliance hook is updated
+    event ComplianceHookUpdated(address oldHook, address newHook);
+
     /// @notice Mapping from token ID to its specific URI
     mapping(uint256 => string) private _tokenURIs;
 
@@ -80,6 +88,7 @@ contract DewizERC1155 is
      * @param hasRoyalty_ Whether royalties are enabled
      * @param royaltyReceiver_ The address to receive royalties
      * @param royaltyFeeNumerator_ The royalty fee in basis points
+     * @param complianceHook_ The compliance hook address (optional)
      */
     constructor(
         string memory name_,
@@ -91,7 +100,8 @@ contract DewizERC1155 is
         bool isPausable_,
         bool hasRoyalty_,
         address royaltyReceiver_,
-        uint96 royaltyFeeNumerator_
+        uint96 royaltyFeeNumerator_,
+        address complianceHook_
     ) ERC1155(uri_) {
         name = name_;
         symbol = symbol_;
@@ -99,6 +109,7 @@ contract DewizERC1155 is
         burnable = isBurnable_;
         pausable = isPausable_;
         factory = msg.sender;
+        complianceHook = IComplianceHook(complianceHook_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, admin_);
         _grantRole(URI_SETTER_ROLE, admin_);
@@ -115,8 +126,8 @@ contract DewizERC1155 is
             _setDefaultRoyalty(royaltyReceiver_, royaltyFeeNumerator_);
         }
     }
-
-    /**
+    
+    /** 
      * @notice Returns the URI for a specific token ID
      * @param tokenId The token ID
      * @return The token URI
@@ -149,6 +160,15 @@ contract DewizERC1155 is
      */
     function setURI(string calldata newuri) external onlyRole(URI_SETTER_ROLE) {
         _setURI(newuri);
+    }
+
+    /**
+     * @notice Updates the compliance hook contract
+     * @param newHook The new compliance hook address
+     */
+    function setComplianceHook(address newHook) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        emit ComplianceHookUpdated(address(complianceHook), newHook);
+        complianceHook = IComplianceHook(newHook);
     }
 
     /**
@@ -271,6 +291,45 @@ contract DewizERC1155 is
         return _nextTokenTypeId;
     }
 
+    /**
+     * @notice Hook that is called before any token transfer. This includes minting and burning.
+     * @param from The address tokens are transferred from
+     * @param to The address tokens are transferred to
+     * @param ids The token IDs transferred
+     * @param values The amounts transferred
+     */
+    function _update(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values
+    ) internal virtual override(ERC1155, ERC1155Pausable, ERC1155Supply) {
+        if (address(complianceHook) != address(0)) {
+            // Check each token transfer in the batch
+            for (uint256 i = 0; i < ids.length; i++) {
+                if (from == address(0)) {
+                    complianceHook.onMint(msg.sender, to, ids[i], values[i]);
+                } else if (to == address(0)) {
+                    complianceHook.onBurn(msg.sender, from, ids[i], values[i]);
+                } else {
+                    complianceHook.onTransfer(msg.sender, from, to, ids[i], values[i]);
+                }
+            }
+        }
+        super._update(from, to, ids, values);
+    }
+
+    /**
+     * @notice See {IERC1155-setApprovalForAll}.
+     */
+    function setApprovalForAll(address operator, bool approved) public virtual override(ERC1155) {
+        if (address(complianceHook) != address(0) && approved) {
+            // value 0 and id 0 used to signify "all"
+            complianceHook.onApproval(msg.sender, msg.sender, operator, 0, 0);
+        }
+        super.setApprovalForAll(operator, approved);
+    }
+
     // Required overrides for multiple inheritance
 
     function supportsInterface(bytes4 interfaceId)
@@ -281,14 +340,5 @@ contract DewizERC1155 is
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function _update(
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory values
-    ) internal virtual override(ERC1155, ERC1155Pausable, ERC1155Supply) {
-        super._update(from, to, ids, values);
     }
 }

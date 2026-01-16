@@ -35,6 +35,7 @@ contract DewizERC721Test is Test, IERC721Receiver {
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event Paused(address account);
     event Unpaused(address account);
+    event ComplianceHookUpdated(address oldHook, address newHook);
 
     function setUp() public {
         admin = makeAddr("admin");
@@ -54,7 +55,8 @@ contract DewizERC721Test is Test, IERC721Receiver {
             true,  // pausable
             false, // no royalty
             address(0),
-            0
+            0,
+            address(0)
         );
 
         // Deploy non-mintable token
@@ -69,7 +71,8 @@ contract DewizERC721Test is Test, IERC721Receiver {
             false, // not pausable
             false, // no royalty
             address(0),
-            0
+            0,
+            address(0)
         );
 
         // Deploy token with royalties
@@ -84,7 +87,8 @@ contract DewizERC721Test is Test, IERC721Receiver {
             false, // not pausable
             true,  // has royalty
             royaltyReceiver,
-            ROYALTY_FEE
+            ROYALTY_FEE,
+            address(0)
         );
     }
 
@@ -132,6 +136,42 @@ contract DewizERC721Test is Test, IERC721Receiver {
 
     function test_Constructor_InitializesTotalSupplyZero() public view {
         assertEq(token.totalSupply(), 0);
+    }
+
+    // ============ Compliance Hook Tests ============
+
+    function test_SetComplianceHook_Success() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
+        
+        assertEq(address(token.complianceHook()), newHook);
+    }
+
+    function test_RevertWhen_SetComplianceHookWithoutAdmin() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                user,
+                DEFAULT_ADMIN_ROLE
+            )
+        );
+        
+        vm.prank(user);
+        token.setComplianceHook(newHook);
+    }
+
+    function test_SetComplianceHook_EmitsEvent() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectEmit(false, false, false, true);
+        emit ComplianceHookUpdated(address(0), newHook);
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
     }
 
     // ============ Minting Tests ============
@@ -242,7 +282,8 @@ contract DewizERC721Test is Test, IERC721Receiver {
             false,
             false,
             address(0),
-            0
+            0,
+            address(0)
         );
 
         vm.prank(admin);

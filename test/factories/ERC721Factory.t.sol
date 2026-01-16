@@ -68,7 +68,8 @@ contract ERC721FactoryTest is Test {
             isPausable: true,
             hasRoyalty: true,
             royaltyReceiver: royaltyReceiver,
-            royaltyFeeNumerator: 250
+            royaltyFeeNumerator: 250,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -97,7 +98,8 @@ contract ERC721FactoryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.expectEmit(false, true, false, true);
@@ -117,7 +119,8 @@ contract ERC721FactoryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         assertEq(factory.getTokenCount(), 0);
@@ -138,7 +141,8 @@ contract ERC721FactoryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -159,7 +163,8 @@ contract ERC721FactoryTest is Test {
             isPausable: false,
             hasRoyalty: false,
             royaltyReceiver: address(0),
-            royaltyFeeNumerator: 0
+            royaltyFeeNumerator: 0,
+            complianceHook: address(0)
         });
 
         vm.prank(user);
@@ -261,7 +266,8 @@ contract ERC721FactoryTest is Test {
             false,
             false,
             address(0),
-            0
+            0,
+            address(0)
         );
 
         assertFalse(factory.isTokenFromFactory(address(externalToken)));

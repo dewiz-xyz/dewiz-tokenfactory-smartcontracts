@@ -21,6 +21,7 @@ interface IERC1155Factory is ITokenFactory {
         bool hasRoyalty;
         address royaltyReceiver;
         uint96 royaltyFeeNumerator; // Basis points (e.g., 250 = 2.5%)
+        address complianceHook;
     }
 
     /// @notice Creates a new ERC-1155 token with the specified parameters

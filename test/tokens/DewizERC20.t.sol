@@ -35,6 +35,7 @@ contract DewizERC20Test is Test {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Paused(address account);
     event Unpaused(address account);
+    event ComplianceHookUpdated(address oldHook, address newHook);
 
     function setUp() public {
         admin = makeAddr("admin");
@@ -54,7 +55,8 @@ contract DewizERC20Test is Test {
             admin,
             true,  // mintable
             true,  // burnable
-            true   // pausable
+            true,  // pausable
+            address(0)
         );
 
         // Deploy non-mintable token
@@ -68,7 +70,8 @@ contract DewizERC20Test is Test {
             admin,
             false, // not mintable
             true,  // burnable
-            false  // not pausable
+            false, // not pausable
+            address(0)
         );
 
         // Deploy non-burnable token
@@ -82,7 +85,8 @@ contract DewizERC20Test is Test {
             admin,
             true,  // mintable
             false, // not burnable
-            false  // not pausable
+            false, // not pausable
+            address(0)
         );
 
         // Deploy pausable token for pause tests
@@ -96,7 +100,8 @@ contract DewizERC20Test is Test {
             admin,
             true, // mintable
             true, // burnable
-            true  // pausable
+            true, // pausable
+            address(0)
         );
     }
 
@@ -156,7 +161,8 @@ contract DewizERC20Test is Test {
             admin,
             true,
             true,
-            false
+            false,
+            address(0)
         );
         assertEq(zeroSupplyToken.totalSupply(), 0);
     }
@@ -172,10 +178,47 @@ contract DewizERC20Test is Test {
             admin,
             true,
             true,
-            false
+            false,
+            address(0)
         );
         // Should not mint when holder is zero address
         assertEq(noHolderToken.totalSupply(), 0);
+    }
+
+    // ============ Compliance Hook Tests ============
+
+    function test_SetComplianceHook_Success() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
+        
+        assertEq(address(token.complianceHook()), newHook);
+    }
+
+    function test_RevertWhen_SetComplianceHookWithoutAdmin() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                user,
+                DEFAULT_ADMIN_ROLE
+            )
+        );
+        
+        vm.prank(user);
+        token.setComplianceHook(newHook);
+    }
+
+    function test_SetComplianceHook_EmitsEvent() public {
+        address newHook = makeAddr("newHook");
+        
+        vm.expectEmit(false, false, false, true); // events are not indexed in contract definition for args
+        emit ComplianceHookUpdated(address(0), newHook);
+        
+        vm.prank(admin);
+        token.setComplianceHook(newHook);
     }
 
     // ============ Minting Tests ============
@@ -441,7 +484,8 @@ contract DewizERC20Test is Test {
             admin,
             true,
             true,
-            false
+            false,
+            address(0)
         );
 
         assertEq(customDecimalsToken.decimals(), 6);

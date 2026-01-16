@@ -20,6 +20,7 @@ interface IERC20Factory is ITokenFactory {
         bool isMintable;
         bool isBurnable;
         bool isPausable;
+        address complianceHook;
     }
 
     /// @notice Creates a new ERC-20 token with the specified parameters

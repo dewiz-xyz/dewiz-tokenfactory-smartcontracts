@@ -296,3 +296,202 @@ token.unpause();
 5. ✅ Add NatSpec documentation
 6. ✅ Run Slither analysis
 7. ✅ Update this context document
+
+## Commit Message Standards (Conventional Commits)
+
+All commit messages and PR titles MUST follow the [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+### Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+| Type | Purpose | Example |
+|------|---------|---------|
+| `feat` | New feature | `feat(ERC20): add compliance hook support` |
+| `fix` | Bug fix | `fix(factory): prevent address(0) admin` |
+| `docs` | Documentation only | `docs: update README with deployment guide` |
+| `style` | Code style changes (formatting, etc.) | `style: format contracts with prettier` |
+| `refactor` | Code change that neither fixes bug nor adds feature | `refactor(registry): optimize factory lookup` |
+| `perf` | Performance improvement | `perf(ERC1155): cache array length in loop` |
+| `test` | Adding or updating tests | `test(ERC20): add reentrancy attack scenarios` |
+| `build` | Build system or dependencies | `build: upgrade to OpenZeppelin 5.1.0` |
+| `ci` | CI/CD changes | `ci: add Slither static analysis workflow` |
+| `chore` | Maintenance tasks | `chore: clean up unused imports` |
+| `revert` | Revert previous commit | `revert: "feat: add batch minting"` |
+
+### Scopes (Optional but Recommended)
+
+Use these to indicate which part of the codebase is affected:
+
+- `ERC20`, `ERC721`, `ERC1155` - Specific token implementations
+- `factory` - Factory contracts
+- `registry` - TokenFactoryRegistry
+- `compliance` - Compliance hook system
+- `security` - Security-related changes
+- `gas` - Gas optimization changes
+- `deploy` - Deployment scripts
+
+### Breaking Changes
+
+**IMPORTANT**: Breaking changes MUST be indicated with `!` after type/scope OR in footer:
+
+```
+feat(ERC20)!: remove deprecated createTokenV1 function
+
+BREAKING CHANGE: createTokenV1 has been removed. Use createToken instead.
+```
+
+OR:
+
+```
+feat(ERC20): add compliance hook support
+
+BREAKING CHANGE: Token constructor now requires complianceHook parameter.
+Existing deployments must pass address(0) for no compliance.
+```
+
+### Examples
+
+**Good commit messages:**
+
+```
+feat(compliance): add IComplianceHook interface
+
+Add standardized interface for regulatory compliance hooks.
+Supports onMint, onTransfer, onBurn, and onApproval callbacks.
+
+Closes #42
+```
+
+```
+fix(ERC1155): add reentrancy guard to _update
+
+BREAKING CHANGE: _update function now uses ReentrancyGuard.
+Gas cost increased by ~23,000 per transaction.
+
+This fixes critical reentrancy vulnerability in batch operations
+where external calls in loops created N attack vectors.
+
+Fixes #156
+```
+
+```
+perf(registry): use cached factory addresses
+
+Reduces gas cost of createERC20Token from 65k to 58k gas
+by caching factory addresses instead of SLOAD per call.
+```
+
+```
+test(security): add reentrancy attack scenarios
+
+Add fuzzing tests for:
+- Constructor reentrancy via compliance hooks
+- _update reentrancy with privilege escalation
+- Batch operation reentrancy amplification
+```
+
+```
+docs(README): add audit findings section
+
+Document Trail of Bits audit findings and remediations.
+```
+
+**Bad commit messages (DO NOT USE):**
+
+```
+❌ update code
+❌ fix bug
+❌ WIP
+❌ changes
+❌ asdfasdf
+❌ Fix stuff
+```
+
+### PR Titles
+
+Pull request titles MUST also follow Conventional Commits format:
+
+```
+feat(ERC20): add pausable functionality
+fix(factory): prevent duplicate token registration
+refactor(compliance): extract validation logic
+```
+
+### Commit Message Body Guidelines
+
+1. **Use imperative mood**: "add feature" not "added feature"
+2. **Explain WHY, not just WHAT**: Context is valuable
+3. **Reference issues**: Use "Fixes #123" or "Closes #123"
+4. **Keep lines < 72 characters**: For better readability
+5. **Separate subject from body**: Use blank line
+
+### Footer Keywords
+
+- `Fixes #123` - Closes issue automatically on merge
+- `Closes #123` - Same as Fixes
+- `Refs #123` - References issue without closing
+- `BREAKING CHANGE:` - Documents breaking changes
+- `Reviewed-by:` - Credit reviewers
+- `Co-authored-by:` - Credit human co-authors (NEVER include Claude/AI as co-author)
+
+### Multi-paragraph Body Example
+
+```
+feat(ERC1155): add batch size limit
+
+Add MAX_BATCH_SIZE constant to prevent DoS attacks via
+unbounded loops in _update function.
+
+The compliance hook is called N times in a loop where N is
+the batch size. Without a limit, malicious users could submit
+batches of 10,000+ tokens, causing transactions to exceed
+block gas limits and brick the contract.
+
+Limit set to 100 tokens per batch based on gas analysis:
+- 100 tokens = ~210k gas overhead (acceptable)
+- 1000 tokens = ~2.1M gas overhead (excessive)
+
+BREAKING CHANGE: Batch operations now limited to 100 tokens.
+Large batches must be split into multiple transactions.
+
+Fixes #234
+Refs #156 (reentrancy audit finding)
+```
+
+### Automated Tools
+
+When using `git commit` or creating PRs, Claude Code will automatically:
+1. ✅ Validate commit message format
+2. ✅ Suggest appropriate type and scope
+3. ✅ Draft commit body with context
+4. ✅ Add footer references (Fixes #, issue references)
+5. ✅ Flag breaking changes
+
+**IMPORTANT**: NEVER add "Co-authored-by: Claude" or any AI attribution to commits. All commits are authored by the human developer.
+
+### Security Commits
+
+For security-sensitive changes, use:
+
+```
+fix(security): add reentrancy guard to _update
+
+SECURITY: This fixes a critical vulnerability where malicious
+compliance hooks could reenter during _update and grant
+themselves unlimited minting privileges.
+
+DO NOT disclose publicly until after deployment.
+
+CVE: Pending assignment
+Severity: Critical
+CVSS: 9.1 (Critical)
+```

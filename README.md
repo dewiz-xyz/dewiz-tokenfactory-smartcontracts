@@ -322,6 +322,79 @@ See [LICENSE](LICENSE) file for details.
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
 - [Ethereum EIPs](https://eips.ethereum.org/)
 
+## Roadmap 🗺️
+
+### 🤖 AI Agent Integration
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Team to define the best strategy to make AI Agents to have access to the Blockchain and Smart Contract |
+| 📋 TODO | Define a wallet set to be used on the integration test |
+| 📋 TODO | Deploy the Smart Contracts on testnet |
+
+### 🏛️ DeFi Governance
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for DeFi Governance |
+| 📋 TODO | Code Smart Contract hooks for DeFi Governance |
+
+### 🏢 RWA Tokenization
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for RWA Tokenization |
+| 📋 TODO | Code Smart Contract hooks for RWA Tokenization |
+
+### 💎 Mineral Assets
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Mineral Assets |
+| 📋 TODO | Code Smart Contract hooks for Mineral Assets |
+
+### 📈 Stock Tokenization
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Stock Tokenization |
+| 📋 TODO | Code Smart Contract hooks for Stock Tokenization |
+
+### 💳 Payment Token
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Payment Token |
+| 📋 TODO | Code Smart Contract hooks for Payment Token |
+
+### 🔧 Utility Token
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Utility Token |
+| 📋 TODO | Code Smart Contract hooks for Utility Token |
+
+### 🔐 Security Token
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Security Token |
+| 📋 TODO | Code Smart Contract hooks for Security Token |
+
+### 🏦 Company Equity
+
+| Status | Task |
+|--------|------|
+| 📋 TODO | Meeting with AI Agent Lawyers to define requirements for Company Equity |
+| 📋 TODO | Code Smart Contract hooks for Company Equity |
+
+---
+
+### Status Legend
+- 📋 **TODO**: Not yet started
+- 🔄 **ON PROGRESS**: Currently being worked on
+- ✅ **DONE**: Completed
+
 ## Contact
 
 For questions, issues, or collaboration opportunities, please reach out to the Dewiz team.

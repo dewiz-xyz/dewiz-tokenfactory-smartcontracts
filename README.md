@@ -13,12 +13,14 @@ In a market where smart contract hacks are common, our MOAT is the reduction of 
 ### Stack Overview
 
 **Smart Contract Framework:**
+
 - **Solidity**: Primary smart contract language (^0.8.24)
 - **Foundry/Forge**: Modern development framework for building, testing, and deploying smart contracts
 - **OpenZeppelin Contracts v5.5**: Industry-standard secure contract implementations
 - **forge-std**: Standard library providing testing utilities and helper functions
 
 **Development Environment:**
+
 - **Forge**: Fast, portable, and modular toolkit for Ethereum application development
 - **Cast**: Swiss army knife for interacting with EVM smart contracts
 - **Anvil**: Local Ethereum node for development and testing
@@ -47,6 +49,7 @@ The project implements the Abstract Factory design pattern, providing a unified 
 ```
 
 **Key Benefits:**
+
 - **Abstraction**: Clients interact with tokens through standardized interfaces (ITokenFactory, IERC20Factory, etc.)
 - **Extensibility**: New token types can be added without modifying existing code
 - **Centralized Management**: Token creation logic is consolidated in factory contracts
@@ -54,15 +57,17 @@ The project implements the Abstract Factory design pattern, providing a unified 
 - **Cost Efficiency**: Shared implementation logic reduces deployment costs
 
 **Access Control Pattern:**
+
 Role-based permissions using OpenZeppelin's AccessControl:
+
 - `DEFAULT_ADMIN_ROLE`: Full administrative access
 - `MINTER_ROLE`: Permission to mint new tokens
 - `PAUSER_ROLE`: Permission to pause/unpause transfers
 - `URI_SETTER_ROLE`: Permission to update metadata URIs (ERC-1155)
 
 **Compliance Layer Architecture:**
-- **Modular Compliance Rules**: Pluggable compliance modules for different jurisdictions
-- **Whitelist/Blacklist Management**: Address-based restrictions for OFAC and other sanctions
+
+- **Whitelist/Blacklist Management**: Address-based restrictions for OFAC and other sanctions or via Chainanalysis services
 - **Transfer Restrictions**: Configurable rules for KYC/AML compliance
 - **Regulatory Hooks**: Pre and post-transfer validation hooks for custom compliance logic
 - **Pausable Functionality**: Emergency pause mechanism for incident response
@@ -70,18 +75,21 @@ Role-based permissions using OpenZeppelin's AccessControl:
 ### Token Standards Support
 
 **DewizERC20 (Fungible Tokens):**
+
 - Stablecoins for payments and remittances
 - Utility tokens for platform economics
 - Tokenized securities and debentures
 - **Features**: Configurable decimals, optional minting, burning, and pausability
 
 **DewizERC721 (Non-Fungible Tokens):**
+
 - Unique asset tokenization (real estate, art, collectibles)
 - Digital certificates and credentials
 - Fractional ownership representations
 - **Features**: ERC-2981 royalty support, URI storage per token, auto-incrementing token IDs
 
 **DewizERC1155 (Multi-Token Standard):**
+
 - Batch operations for efficiency
 - Mixed fungible and non-fungible token management
 - Reduced gas costs for multi-asset platforms
@@ -90,6 +98,7 @@ Role-based permissions using OpenZeppelin's AccessControl:
 ### Security Considerations
 
 **Best Practices Implemented:**
+
 - **Access Control**: OpenZeppelin's role-based access control patterns
 - **Reentrancy Protection**: Guards against reentrancy attacks
 - **Integer Overflow Protection**: Built-in Solidity 0.8+ overflow checks
@@ -97,6 +106,7 @@ Role-based permissions using OpenZeppelin's AccessControl:
 - **Auditable Code**: Clean, well-documented code following Solidity style guide
 
 **Testing Strategy:**
+
 - **Unit Tests**: Comprehensive coverage of individual contract functions
 - **Fuzz Testing**: Property-based testing for edge cases and unexpected inputs
 - **Integration Tests**: End-to-end testing of token lifecycle and interactions
@@ -105,12 +115,14 @@ Role-based permissions using OpenZeppelin's AccessControl:
 ### Deployment Architecture
 
 **Multi-Chain Support:**
+
 - Ethereum Mainnet (Layer 1)
 - Polygon, Arbitrum, Optimism (Layer 2 scaling solutions)
 - BNB Chain, Avalanche (Alternative L1s)
 - Private/Permissioned networks for enterprise clients
 
 **Deployment Workflow:**
+
 1. **Development**: Local testing with Anvil
 2. **Staging**: Testnet deployment (Sepolia, Mumbai, etc.)
 3. **Audit**: Third-party security audits
@@ -120,28 +132,21 @@ Role-based permissions using OpenZeppelin's AccessControl:
 ### Compliance Integration
 
 **Regulatory Compliance Modules:**
+
 - **OFAC Sanctions Screening**: Real-time address validation against sanctions lists
 - **KYC/AML Integration**: Identity verification hooks for regulated tokens
 - **Transfer Restrictions**: Time-locks, amount limits, and accredited investor checks
 - **Reporting Features**: On-chain audit trails for regulatory reporting
 
 **Jurisdiction-Specific Rules:**
+
 - **US Securities**: SEC compliance for security tokens
 - **European Markets**: MiCA (Markets in Crypto-Assets) regulation support
 - **Asian Markets**: Region-specific compliance frameworks
 
 ### Integration Points
 
-**Off-Chain Components:**
-- **Oracle Integration**: Chainlink or custom oracles for price feeds and data
-- **Identity Verification**: Integration with KYC/AML providers
-- **Monitoring Services**: Block explorers and transaction monitoring
-- **Backend APIs**: RESTful APIs for token management and reporting
-
-**Frontend Interaction:**
-- **Web3 Libraries**: ethers.js, web3.js, or viem for dApp integration
-- **Wallet Support**: MetaMask, WalletConnect, Ledger hardware wallets
-- **User Dashboard**: Token management interface for administrators and users
+Another Web2 Project will be created to generate a REST API to manage and operate the Smart Contracts functionalities, and then allow AI Agents to integrate with TokenFactory Smart Contracts.
 
 ## Project Structure
 
@@ -296,6 +301,7 @@ address multiToken = registry.createSimpleERC1155Token(
 ## Contributing
 
 Contributions are welcome! Please follow these guidelines:
+
 1. Fork the repository
 2. Create a feature branch
 3. Write tests for new functionality
@@ -305,6 +311,7 @@ Contributions are welcome! Please follow these guidelines:
 ## Security
 
 This is production-grade financial infrastructure. Security is paramount:
+
 - All code should be thoroughly tested
 - Critical changes require security audits
 - Follow the principle of least privilege
@@ -391,6 +398,7 @@ See [LICENSE](LICENSE) file for details.
 ---
 
 ### Status Legend
+
 - 📋 **TODO**: Not yet started
 - 🔄 **ON PROGRESS**: Currently being worked on
 - ✅ **DONE**: Completed

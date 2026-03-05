@@ -1673,14 +1673,14 @@ forge script script/DeployTokenFactory.s.sol:DeployTokenFactory \
 
 ## Changelog
 
-- [2025-02-05] Initial technical requirements document created
-- [2025-02-05] Added REST API solution design with SOLID architecture
-- [2025-02-05] Added OWASP API Security Top 10 (2023) compliance matrix
-- [2025-02-05] Added REST API endpoints specification (OpenAPI-ready)
-- [2025-02-05] Added API-specific attack vectors and edge cases
-- [2025-02-05] Updated assumptions with API operational requirements
-- [2025-02-05] **Scope Clarification**: Removed wallet management and token operations (mint/burn/transfer) from API scope; API focuses on factory token creation only
-- [2025-02-05] **Tech Stack Update**: Added Hexagonal Architecture with detailed project structure and design patterns (using Rust as reference)
-- [2025-02-05] **Multi-Tenancy Documentation**: Added comprehensive explanation of tenant concept, rationale for multi-tenant architecture, and tenant isolation mechanisms
-- [2025-02-05] **Tenant Management Endpoints**: Added REST API endpoints for tenant CRUD operations, user management, and API key management
-- [2025-02-05] **Language Flexibility**: Clarified that REST API can be implemented in JavaScript/TypeScript or Go; Rust is provided as a reference implementation only
+- [2026-02-05] Initial technical requirements document created
+- [2026-02-05] Added REST API solution design with SOLID architecture
+- [2026-02-05] Added OWASP API Security Top 10 (2023) compliance matrix
+- [2026-02-05] Added REST API endpoints specification (OpenAPI-ready)
+- [2026-02-05] Added API-specific attack vectors and edge cases
+- [2026-02-05] Updated assumptions with API operational requirements
+- [2026-02-05] **Scope Clarification**: Removed wallet management and token operations (mint/burn/transfer) from API scope; API focuses on factory token creation only
+- [2026-02-05] **Tech Stack Update**: Added Hexagonal Architecture with detailed project structure and design patterns (using Rust as reference)
+- [2026-02-05] **Multi-Tenancy Documentation**: Added comprehensive explanation of tenant concept, rationale for multi-tenant architecture, and tenant isolation mechanisms
+- [2026-02-05] **Tenant Management Endpoints**: Added REST API endpoints for tenant CRUD operations, user management, and API key management
+- [2026-02-05] **Language Flexibility**: Clarified that REST API can be implemented in JavaScript/TypeScript or Go; Rust is provided as a reference implementation only
